@@ -22,11 +22,18 @@ phases:
       - npm run build
   post_build:
     commands:
-      - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi" # check if build was successful. exit otherwise.
-      - npm run deploy
+      - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
+      # Empaqueta SOLO la layer en un zip listo para Lambda Layers
+      # Normalmente SAM deja el contenido de la layer en .aws-sam/build/SharpHEICLayer/
+      - cd .aws-sam/build/SharpHEICLayer
+      - zip -r ../SharpHEICLayer.zip .
+      - cd ../../..
+
 artifacts:
   files:
-    - .aws-sam/**/*
+    - .aws-sam/build/SharpHEICLayer.zip
+    - .aws-sam/build/template.yaml
+
 cache:
   paths:
     - '/root/.npm/**/*'
